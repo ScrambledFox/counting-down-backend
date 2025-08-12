@@ -1,9 +1,15 @@
 import express from "express";
+import cors from "cors";
 import todoRoutes from "./routes/todoRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
 
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "https://localhost:3000",
+  })
+);
 app.use(express.json());
 
 // Routes
