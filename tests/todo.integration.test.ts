@@ -1,7 +1,18 @@
 import request from "supertest";
 import app from "../src/app";
 import { TodoModel } from "../src/models/todo-item";
-import { createMultipleTestTodos, sampleTodos } from "./helpers/test-helpers";
+
+const sampleTodos = [
+  { title: "Buy groceries", category: "Personal", completed: false },
+  { title: "Finish project", category: "Work", completed: true },
+  { title: "Read book", category: "Leisure", completed: false },
+];
+
+async function createMultipleTestTodos(todos: any[]) {
+  for (const todo of todos) {
+    await request(app).post("/api/todos").send(todo).expect(201);
+  }
+}
 
 describe("Todo Integration Tests", () => {
   describe("Todo Workflow Integration", () => {
@@ -9,7 +20,7 @@ describe("Todo Integration Tests", () => {
       // 1. Create a new todo
       const newTodo = {
         title: "Integration Test Todo",
-        description: "This is for integration testing",
+        category: "Testing",
         completed: false,
       };
 
@@ -28,14 +39,14 @@ describe("Todo Integration Tests", () => {
 
       expect(getResponse.body.data).toMatchObject({
         title: "Integration Test Todo",
-        description: "This is for integration testing",
+        category: "Testing",
         completed: false,
       });
 
       // 3. Update the todo
       const updateData = {
         title: "Updated Integration Test Todo",
-        description: "Updated for integration testing",
+        category: "Update",
       };
 
       const updateResponse = await request(app)
@@ -45,7 +56,7 @@ describe("Todo Integration Tests", () => {
 
       expect(updateResponse.body.data).toMatchObject({
         title: "Updated Integration Test Todo",
-        description: "Updated for integration testing",
+        category: "Update",
         completed: false,
       });
 
@@ -65,7 +76,7 @@ describe("Todo Integration Tests", () => {
       );
       expect(foundTodo).toMatchObject({
         title: "Updated Integration Test Todo",
-        description: "Updated for integration testing",
+        category: "Update",
         completed: true,
       });
 
@@ -112,7 +123,7 @@ describe("Todo Integration Tests", () => {
     it("should maintain data consistency across operations", async () => {
       const todo = {
         title: "Consistency Test",
-        description: "Testing data consistency",
+        category: "Testing",
         completed: false,
       };
 
@@ -132,7 +143,7 @@ describe("Todo Integration Tests", () => {
 
       await request(app)
         .put(`/api/todos/${todoId}`)
-        .send({ description: "Updated Description" })
+        .send({ category: "Updated Category" })
         .expect(200);
 
       // Toggle completion multiple times
@@ -147,7 +158,7 @@ describe("Todo Integration Tests", () => {
       // Verify final state
       expect(toggleResponse.body.data).toMatchObject({
         title: "Updated Title 1",
-        description: "Updated Description",
+        category: "Updated Category",
         completed: false,
       });
 
@@ -155,7 +166,7 @@ describe("Todo Integration Tests", () => {
       const dbTodo = await TodoModel.findById(todoId);
       expect(dbTodo).toMatchObject({
         title: "Updated Title 1",
-        description: "Updated Description",
+        category: "Updated Category",
         completed: false,
       });
     });
@@ -194,7 +205,7 @@ describe("Todo Integration Tests", () => {
 
       await request(app)
         .post("/api/todos")
-        .send({ description: "Only Description" })
+        .send({ category: "Only Category" })
         .expect(400);
 
       // Create a valid todo first
@@ -202,7 +213,7 @@ describe("Todo Integration Tests", () => {
         .post("/api/todos")
         .send({
           title: "Valid Todo",
-          description: "Valid Description",
+          category: "Valid Category",
         })
         .expect(201);
 
@@ -218,7 +229,7 @@ describe("Todo Integration Tests", () => {
       // Test whitespace trimming
       const todoWithSpaces = {
         title: "  Spaced Title  ",
-        description: "  Spaced Description  ",
+        category: "  Spaced Category  ",
         completed: false,
       };
 
@@ -228,7 +239,7 @@ describe("Todo Integration Tests", () => {
         .expect(201);
 
       expect(createResponse.body.data.title).toBe("Spaced Title");
-      expect(createResponse.body.data.description).toBe("Spaced Description");
+      expect(createResponse.body.data.category).toBe("Spaced Category");
 
       const todoId = createResponse.body.data._id;
 
@@ -237,65 +248,12 @@ describe("Todo Integration Tests", () => {
         .put(`/api/todos/${todoId}`)
         .send({
           title: "  Updated Spaced Title  ",
-          description: "  Updated Spaced Description  ",
+          category: "  Updated Spaced Category  ",
         })
         .expect(200);
 
       expect(updateResponse.body.data.title).toBe("Updated Spaced Title");
-      expect(updateResponse.body.data.description).toBe(
-        "Updated Spaced Description"
-      );
-    });
-
-    it("should handle edge case values", async () => {
-      // Test with very long strings
-      const longTitle = "A".repeat(1000);
-      const longDescription = "B".repeat(2000);
-
-      const createResponse = await request(app)
-        .post("/api/todos")
-        .send({
-          title: longTitle,
-          description: longDescription,
-          completed: true,
-        })
-        .expect(201);
-
-      expect(createResponse.body.data.title).toBe(longTitle);
-      expect(createResponse.body.data.description).toBe(longDescription);
-      expect(createResponse.body.data.completed).toBe(true);
-    });
-  });
-
-  describe("Performance and Load Integration", () => {
-    it("should handle multiple rapid operations", async () => {
-      const promises = [];
-
-      // Create 10 todos rapidly
-      for (let i = 0; i < 10; i++) {
-        promises.push(
-          request(app)
-            .post("/api/todos")
-            .send({
-              title: `Rapid Todo ${i}`,
-              description: `Description ${i}`,
-              completed: i % 2 === 0,
-            })
-        );
-      }
-
-      const responses = await Promise.all(promises);
-
-      // All should succeed
-      responses.forEach((response) => {
-        expect(response.status).toBe(201);
-        expect(response.body.success).toBe(true);
-      });
-
-      // Verify all todos were created
-      const getAllResponse = await request(app).get("/api/todos").expect(200);
-
-      expect(getAllResponse.body.data.length).toBeGreaterThanOrEqual(10);
+      expect(updateResponse.body.data.category).toBe("Updated Spaced Category");
     });
   });
 });

@@ -93,13 +93,21 @@ export async function createTodoController(
   res: Response
 ): Promise<void> {
   try {
-    const { title, description, completed }: ICreateTodo = req.body;
+    const { title, category, completed }: ICreateTodo = req.body;
 
     // Validation
-    if (!title || !description) {
+    if (!title || !category) {
       res.status(400).json({
         success: false,
-        message: "Title and description are required",
+        message: "Title and category are required",
+      });
+      return;
+    }
+
+    if (title.length > 200 || category.length > 25) {
+      res.status(400).json({
+        success: false,
+        message: "Title (200) or category (25) exceeds maximum length",
       });
       return;
     }
@@ -107,7 +115,7 @@ export async function createTodoController(
     const todoData = {
       id: uuidv4(),
       title: title.trim(),
-      description: description.trim(),
+      category: category.trim(),
       completed: completed || false,
     };
 
@@ -153,7 +161,7 @@ export async function updateTodoController(
       updateData
     ).reduce((acc, [key, value]) => {
       if (value !== undefined && value !== "" && key !== "id") {
-        if (key === "title" || key === "description") {
+        if (key === "title" || key === "category") {
           (acc as any)[key] = (value as string).trim();
         } else {
           (acc as any)[key] = value;
@@ -166,6 +174,22 @@ export async function updateTodoController(
       res.status(400).json({
         success: false,
         message: "No valid fields to update",
+      });
+      return;
+    }
+
+    if (cleanUpdateData.title && cleanUpdateData.title.length > 200) {
+      res.status(400).json({
+        success: false,
+        message: "Title exceeds maximum length of 200 characters",
+      });
+      return;
+    }
+
+    if (cleanUpdateData.category && cleanUpdateData.category.length > 25) {
+      res.status(400).json({
+        success: false,
+        message: "Category exceeds maximum length of 25 characters",
       });
       return;
     }

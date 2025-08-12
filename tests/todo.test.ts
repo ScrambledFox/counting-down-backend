@@ -1,13 +1,6 @@
 import request from "supertest";
 import app from "../src/app";
 import { TodoModel } from "../src/models/todo-item";
-import {
-  createTestTodo,
-  createMultipleTestTodos,
-  sampleTodos,
-  generateInvalidObjectId,
-  generateInvalidId,
-} from "./helpers/test-helpers";
 
 describe("Todo Endpoints", () => {
   describe("GET /api/todos", () => {
@@ -26,12 +19,12 @@ describe("Todo Endpoints", () => {
       const testTodos = [
         {
           title: "Test Todo 1",
-          description: "Description 1",
+          category: "Category 1",
           completed: false,
         },
         {
           title: "Test Todo 2",
-          description: "Description 2",
+          category: "Category 2",
           completed: true,
         },
       ];
@@ -45,7 +38,7 @@ describe("Todo Endpoints", () => {
       expect(response.body.message).toBe("Todos retrieved successfully");
       expect(response.body.data[0]).toMatchObject({
         title: "Test Todo 1",
-        description: "Description 1",
+        category: "Category 1",
         completed: false,
       });
     });
@@ -74,7 +67,7 @@ describe("Todo Endpoints", () => {
     it("should return todo when it exists", async () => {
       const testTodo = new TodoModel({
         title: "Test Todo",
-        description: "Test Description",
+        category: "Test Category",
         completed: false,
       });
       const savedTodo = await testTodo.save();
@@ -86,7 +79,7 @@ describe("Todo Endpoints", () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data).toMatchObject({
         title: "Test Todo",
-        description: "Test Description",
+        category: "Test Category",
         completed: false,
       });
       expect(response.body.message).toBe("Todo retrieved successfully");
@@ -97,7 +90,7 @@ describe("Todo Endpoints", () => {
     it("should create a new todo with valid data", async () => {
       const newTodo = {
         title: "New Todo",
-        description: "New Description",
+        category: "New category",
         completed: false,
       };
 
@@ -109,7 +102,7 @@ describe("Todo Endpoints", () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data).toMatchObject({
         title: "New Todo",
-        description: "New Description",
+        category: "New category",
         completed: false,
       });
       expect(response.body.data._id).toBeDefined();
@@ -123,7 +116,7 @@ describe("Todo Endpoints", () => {
     it("should create todo with default completed status when not provided", async () => {
       const newTodo = {
         title: "New Todo",
-        description: "New Description",
+        category: "New category",
       };
 
       const response = await request(app)
@@ -136,7 +129,7 @@ describe("Todo Endpoints", () => {
 
     it("should return 400 when title is missing", async () => {
       const invalidTodo = {
-        description: "Description without title",
+        category: "Category without title",
       };
 
       const response = await request(app)
@@ -146,13 +139,13 @@ describe("Todo Endpoints", () => {
 
       expect(response.body).toEqual({
         success: false,
-        message: "Title and description are required",
+        message: "Title and category are required",
       });
     });
 
-    it("should return 400 when description is missing", async () => {
+    it("should return 400 when category is missing", async () => {
       const invalidTodo = {
-        title: "Title without description",
+        title: "Title without category",
       };
 
       const response = await request(app)
@@ -162,14 +155,30 @@ describe("Todo Endpoints", () => {
 
       expect(response.body).toEqual({
         success: false,
-        message: "Title and description are required",
+        message: "Title and category are required",
       });
     });
 
-    it("should trim whitespace from title and description", async () => {
+    it("should return 400 when category is missing", async () => {
+      const invalidTodo = {
+        title: "Title without category",
+      };
+
+      const response = await request(app)
+        .post("/api/todos")
+        .send(invalidTodo)
+        .expect(400);
+
+      expect(response.body).toEqual({
+        success: false,
+        message: "Title and category are required",
+      });
+    });
+
+    it("should trim whitespace from title and category", async () => {
       const newTodo = {
         title: "  Trimmed Title  ",
-        description: "  Trimmed Description  ",
+        category: "  Trimmed category  ",
         completed: false,
       };
 
@@ -179,7 +188,7 @@ describe("Todo Endpoints", () => {
         .expect(201);
 
       expect(response.body.data.title).toBe("Trimmed Title");
-      expect(response.body.data.description).toBe("Trimmed Description");
+      expect(response.body.data.category).toBe("Trimmed category");
     });
   });
 
@@ -189,7 +198,7 @@ describe("Todo Endpoints", () => {
     beforeEach(async () => {
       testTodo = new TodoModel({
         title: "Original Title",
-        description: "Original Description",
+        category: "Original category",
         completed: false,
       });
       await testTodo.save();
@@ -198,7 +207,7 @@ describe("Todo Endpoints", () => {
     it("should update todo with valid data", async () => {
       const updateData = {
         title: "Updated Title",
-        description: "Updated Description",
+        category: "Updated category",
         completed: true,
       };
 
@@ -210,7 +219,7 @@ describe("Todo Endpoints", () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data).toMatchObject({
         title: "Updated Title",
-        description: "Updated Description",
+        category: "Updated category",
         completed: true,
       });
       expect(response.body.message).toBe("Todo updated successfully");
@@ -227,7 +236,7 @@ describe("Todo Endpoints", () => {
         .expect(200);
 
       expect(response.body.data.title).toBe("Updated Title Only");
-      expect(response.body.data.description).toBe("Original Description");
+      expect(response.body.data.category).toBe("Original category");
       expect(response.body.data.completed).toBe(false);
     });
 
@@ -261,7 +270,7 @@ describe("Todo Endpoints", () => {
     it("should ignore empty strings and undefined values", async () => {
       const updateData = {
         title: "",
-        description: undefined,
+        category: undefined,
         completed: true,
       };
 
@@ -271,14 +280,14 @@ describe("Todo Endpoints", () => {
         .expect(200);
 
       expect(response.body.data.title).toBe("Original Title");
-      expect(response.body.data.description).toBe("Original Description");
+      expect(response.body.data.category).toBe("Original category");
       expect(response.body.data.completed).toBe(true);
     });
 
-    it("should trim whitespace from title and description", async () => {
+    it("should trim whitespace from title and category", async () => {
       const updateData = {
         title: "  Trimmed Updated Title  ",
-        description: "  Trimmed Updated Description  ",
+        category: "  Trimmed Updated Category  ",
       };
 
       const response = await request(app)
@@ -287,9 +296,7 @@ describe("Todo Endpoints", () => {
         .expect(200);
 
       expect(response.body.data.title).toBe("Trimmed Updated Title");
-      expect(response.body.data.description).toBe(
-        "Trimmed Updated Description"
-      );
+      expect(response.body.data.category).toBe("Trimmed Updated Category");
     });
   });
 
@@ -299,7 +306,7 @@ describe("Todo Endpoints", () => {
     beforeEach(async () => {
       testTodo = new TodoModel({
         title: "Todo to Delete",
-        description: "This will be deleted",
+        category: "This will be deleted",
         completed: false,
       });
       await testTodo.save();
@@ -343,7 +350,7 @@ describe("Todo Endpoints", () => {
     beforeEach(async () => {
       testTodo = new TodoModel({
         title: "Todo to Toggle",
-        description: "This will be toggled",
+        category: "This will be toggled",
         completed: false,
       });
       await testTodo.save();

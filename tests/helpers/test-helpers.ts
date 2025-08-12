@@ -2,14 +2,14 @@ import { TodoModel } from "../../src/models/todo-item";
 
 export interface TestTodoData {
   title: string;
-  description: string;
+  category: string;
   completed?: boolean;
 }
 
 export const createTestTodo = async (data: TestTodoData) => {
   const todo = new TodoModel({
     title: data.title,
-    description: data.description,
+    category: data.category,
     completed: data.completed || false,
   });
   return await todo.save();
@@ -22,17 +22,17 @@ export const createMultipleTestTodos = async (todos: TestTodoData[]) => {
 export const sampleTodos: TestTodoData[] = [
   {
     title: "Buy groceries",
-    description: "Need to buy milk, eggs, and bread",
+    category: "Shopping",
     completed: false,
   },
   {
     title: "Finish project",
-    description: "Complete the todo app backend",
+    category: "Work",
     completed: true,
   },
   {
     title: "Exercise",
-    description: "Go for a 30-minute walk",
+    category: "Health",
     completed: false,
   },
 ];

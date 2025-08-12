@@ -23,7 +23,7 @@ describe("Todo DAL Unit Tests", () => {
       const todos = await getAllTodos();
       expect(todos).toHaveLength(3);
       expect(todos[0]).toHaveProperty("title");
-      expect(todos[0]).toHaveProperty("description");
+      expect(todos[0]).toHaveProperty("category");
       expect(todos[0]).toHaveProperty("completed");
     });
   });
@@ -41,7 +41,7 @@ describe("Todo DAL Unit Tests", () => {
 
       expect(foundTodo).toBeTruthy();
       expect(foundTodo!.title).toBe(sampleTodos[0].title);
-      expect(foundTodo!.description).toBe(sampleTodos[0].description);
+      expect(foundTodo!.category).toBe(sampleTodos[0].category);
       expect(foundTodo!.completed).toBe(sampleTodos[0].completed);
     });
   });
@@ -50,7 +50,7 @@ describe("Todo DAL Unit Tests", () => {
     it("should create a new todo with provided data", async () => {
       const todoData = {
         title: "New Todo",
-        description: "New Description",
+        category: "New Category",
         completed: false,
       };
 
@@ -58,7 +58,7 @@ describe("Todo DAL Unit Tests", () => {
 
       expect(createdTodo).toBeTruthy();
       expect(createdTodo.title).toBe(todoData.title);
-      expect(createdTodo.description).toBe(todoData.description);
+      expect(createdTodo.category).toBe(todoData.category);
       expect(createdTodo.completed).toBe(todoData.completed);
       expect(createdTodo.createdAt).toBeDefined();
       expect(createdTodo.updatedAt).toBeDefined();
@@ -71,7 +71,7 @@ describe("Todo DAL Unit Tests", () => {
     it("should set timestamps when creating todo", async () => {
       const todoData = {
         title: "Timestamped Todo",
-        description: "Testing timestamps",
+        category: "Testing",
         completed: false,
       };
 
@@ -100,7 +100,7 @@ describe("Todo DAL Unit Tests", () => {
     it("should update existing todo with new data", async () => {
       const updateData = {
         title: "Updated Title",
-        description: "Updated Description",
+        category: "Updated Category",
         completed: true,
       };
 
@@ -108,7 +108,7 @@ describe("Todo DAL Unit Tests", () => {
 
       expect(updatedTodo).toBeTruthy();
       expect(updatedTodo!.title).toBe(updateData.title);
-      expect(updatedTodo!.description).toBe(updateData.description);
+      expect(updatedTodo!.category).toBe(updateData.category);
       expect(updatedTodo!.completed).toBe(updateData.completed);
       expect(updatedTodo!.updatedAt).not.toEqual(testTodo.updatedAt);
     });
@@ -121,7 +121,7 @@ describe("Todo DAL Unit Tests", () => {
       const updatedTodo = await updateTodo(testTodo._id.toString(), updateData);
 
       expect(updatedTodo!.title).toBe(updateData.title);
-      expect(updatedTodo!.description).toBe(testTodo.description);
+      expect(updatedTodo!.category).toBe(testTodo.category);
       expect(updatedTodo!.completed).toBe(testTodo.completed);
     });
 
@@ -177,7 +177,7 @@ describe("Todo DAL Unit Tests", () => {
     beforeEach(async () => {
       testTodo = await createTestTodo({
         title: "Toggle Test Todo",
-        description: "For testing toggle functionality",
+        category: "Testing",
         completed: false,
       });
     });
@@ -229,7 +229,7 @@ describe("Todo DAL Unit Tests", () => {
       // Create todo
       const todoData = {
         title: "Persistence Test",
-        description: "Testing data persistence",
+        category: "Testing",
         completed: false,
       };
 
@@ -247,14 +247,14 @@ describe("Todo DAL Unit Tests", () => {
 
       expect(finalTodo).toBeTruthy();
       expect(finalTodo!.title).toBe("Updated Persistence Test");
-      expect(finalTodo!.description).toBe(todoData.description);
+      expect(finalTodo!.category).toBe(todoData.category);
       expect(finalTodo!.completed).toBe(true);
     });
 
     it("should handle concurrent operations safely", async () => {
       const todoData = {
         title: "Concurrent Test",
-        description: "Testing concurrent operations",
+        category: "Testing",
         completed: false,
       };
 
@@ -264,7 +264,7 @@ describe("Todo DAL Unit Tests", () => {
       // Perform multiple concurrent operations
       const operations = [
         updateTodo(todoId, { title: "Updated by Operation 1" }),
-        updateTodo(todoId, { description: "Updated by Operation 2" }),
+        updateTodo(todoId, { category: "Concurrency" }),
         toggleTodoCompletion(todoId),
       ];
 
