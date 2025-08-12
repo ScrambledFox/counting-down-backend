@@ -11,13 +11,4 @@ const todoSchema = new mongoose.Schema({
 
 export type ITodo = InferSchemaType<typeof todoSchema>;
 
-export type ICreateTodo = Omit<ITodo, "createdAt" | "updatedAt"> & {
-  createdAt?: Date;
-  updatedAt?: Date;
-};
-
-export type IUpdateTodo = Partial<Omit<ITodo, "id">> & {
-  id: string;
-};
-
 export const TodoModel = mongoose.model("Todo", todoSchema);

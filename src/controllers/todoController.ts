@@ -7,7 +7,7 @@ import {
   deleteTodo,
   toggleTodoCompletion,
 } from "../dal/todo-dal";
-import { ITodo, ICreateTodo, IUpdateTodo } from "../models/todo-item";
+import { ITodo } from "../models/todo-item";
 import { v4 as uuidv4 } from "uuid";
 
 /**
@@ -93,7 +93,11 @@ export async function createTodoController(
   res: Response
 ): Promise<void> {
   try {
-    const { title, category, completed }: ICreateTodo = req.body;
+    const {
+      title,
+      category,
+      completed,
+    }: Omit<ITodo, "id" | "createdAt" | "updatedAt"> = req.body;
 
     // Validation
     if (!title || !category) {
@@ -146,7 +150,7 @@ export async function updateTodoController(
 ): Promise<void> {
   try {
     const { id } = req.params;
-    const updateData: Partial<IUpdateTodo> = req.body;
+    const updateData: Partial<ITodo> = req.body;
 
     if (!id) {
       res.status(400).json({
@@ -157,18 +161,19 @@ export async function updateTodoController(
     }
 
     // Remove empty strings and undefined values
-    const cleanUpdateData: Partial<IUpdateTodo> = Object.entries(
-      updateData
-    ).reduce((acc, [key, value]) => {
-      if (value !== undefined && value !== "" && key !== "id") {
-        if (key === "title" || key === "category") {
-          (acc as any)[key] = (value as string).trim();
-        } else {
-          (acc as any)[key] = value;
+    const cleanUpdateData: Partial<ITodo> = Object.entries(updateData).reduce(
+      (acc, [key, value]) => {
+        if (value !== undefined && value !== "" && key !== "id") {
+          if (key === "title" || key === "category") {
+            (acc as any)[key] = (value as string).trim();
+          } else {
+            (acc as any)[key] = value;
+          }
         }
-      }
-      return acc;
-    }, {} as Partial<IUpdateTodo>);
+        return acc;
+      },
+      {} as Partial<ITodo>
+    );
 
     if (Object.keys(cleanUpdateData).length === 0) {
       res.status(400).json({
