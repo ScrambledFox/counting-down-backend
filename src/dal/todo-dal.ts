@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { TodoModel, ITodo } from "../models/todo-item";
 
 /**
@@ -28,7 +29,7 @@ export async function getTodoById(id: string): Promise<ITodo | null> {
  * @returns Promise<TodoItem>
  */
 export async function createTodo(
-  todoData: Omit<ITodo, "createdAt" | "updatedAt">
+  todoData: Omit<ITodo, "id" | "createdAt" | "updatedAt">
 ): Promise<ITodo> {
   const todo = new TodoModel({
     ...todoData,

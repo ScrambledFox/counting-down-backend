@@ -16,6 +16,6 @@ router.get("/:id", getTodoByIdController);
 router.post("/", createTodoController);
 router.put("/:id", updateTodoController);
 router.delete("/:id", deleteTodoController);
-router.patch("/:id/toggle-completion", toggleTodoController);
+router.post("/:id/toggle-completion", toggleTodoController);
 
 export default router;

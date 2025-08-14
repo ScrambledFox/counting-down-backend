@@ -8,7 +8,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "https://localhost:3000",
+    origin:
+      process.env.NODE_ENV !== "development"
+        ? process.env.FRONTEND_URL
+        : "http://localhost:3000",
   })
 );
 app.use(express.json());
