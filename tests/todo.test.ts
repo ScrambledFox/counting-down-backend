@@ -358,7 +358,7 @@ describe("Todo Endpoints", () => {
 
     it("should toggle completion status from false to true", async () => {
       const response = await request(app)
-        .patch(`/api/todos/${testTodo._id}/toggle-completion`)
+        .post(`/api/todos/${testTodo._id}/toggle-completion`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -372,7 +372,7 @@ describe("Todo Endpoints", () => {
       await testTodo.save();
 
       const response = await request(app)
-        .patch(`/api/todos/${testTodo._id}/toggle-completion`)
+        .post(`/api/todos/${testTodo._id}/toggle-completion`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -383,7 +383,7 @@ describe("Todo Endpoints", () => {
     it("should return 404 when todo does not exist", async () => {
       const nonExistentId = "507f1f77bcf86cd799439011";
       const response = await request(app)
-        .patch(`/api/todos/${nonExistentId}/toggle-completion`)
+        .post(`/api/todos/${nonExistentId}/toggle-completion`)
         .expect(404);
 
       expect(response.body).toEqual({

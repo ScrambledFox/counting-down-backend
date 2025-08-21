@@ -62,7 +62,7 @@ describe("Todo Integration Tests", () => {
 
       // 4. Toggle completion status
       const toggleResponse = await request(app)
-        .patch(`/api/todos/${todoId}/toggle-completion`)
+        .post(`/api/todos/${todoId}/toggle-completion`)
         .expect(200);
 
       expect(toggleResponse.body.data.completed).toBe(true);
@@ -148,11 +148,11 @@ describe("Todo Integration Tests", () => {
 
       // Toggle completion multiple times
       await request(app)
-        .patch(`/api/todos/${todoId}/toggle-completion`)
+        .post(`/api/todos/${todoId}/toggle-completion`)
         .expect(200);
 
       const toggleResponse = await request(app)
-        .patch(`/api/todos/${todoId}/toggle-completion`)
+        .post(`/api/todos/${todoId}/toggle-completion`)
         .expect(200);
 
       // Verify final state
