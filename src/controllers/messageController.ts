@@ -18,7 +18,11 @@ import {
 export async function getAllMessages(req: Request, res: Response) {
   try {
     const messages = await getAllMessagesDAL();
-    res.status(200).json(messages);
+    res.status(200).json({
+      success: true,
+      data: messages,
+      message: "Messages retrieved successfully",
+    });
   } catch (error) {
     console.error("Error fetching messages:", error);
     res.status(500).json({
